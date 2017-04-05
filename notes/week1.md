@@ -1,4 +1,5 @@
-# Basic of Spark's RDD ## RDDS
+# Basic of Spark's RDD 
+## RDDS
 1. Basic APIs 
 ```scala
   abstract class RDD[T]{
@@ -53,6 +54,134 @@ val lengthRdd = wordsRdd.map(_.length)
 val totalChars = lengthRdd.reduce(_+_)
 ```
   now the thing happened
+
+  find error log
+```scala
+val lastYearLogs:RDD[strings] = ...
+val numdecDecErrorLogs = lastYearLogs.filter(lg=>lg.contains("2016-12")&&lg.contains("error")).count()
+val firstLogsWithErrors = lastYearLogs.filter(_.contains("ERROR")).take(10)
+```
+
+4. Transformations on Two RDDS
+  * union
+  * intersection
+  * subtract
+  * cartesian 
+  
+5. other usefull RDD actions
+  * takeSample
+  * takeOrdered
+  * saveAsTextFile
+  * saveAsSequenceFile
+
+## Evaluation in Spark
+
+1. why spark good for data science
+    1. in-memory computation 
+    2. Transformations(defferred/lazy) and  actions(eagerness)
+
+    3. most Data Science problem involve iteration
+    
+    4. iteration in Hadoop
+    mapreduce => write into HDFS => mapreduce=> wrie into HDFS
+    
+    5. iteration in spark
+      read => some iteration
+      avoid all IO on disk
+      
+2. Logistic Regression
+```scala
+val points = sc.textFile(...).map(parsePoint)
+var w = Vector.zeros(d)
+for (i<-1 to numIterations){
+    val gradient = points.map{
+      p =>
+      (1/(1+exp(-p.y * w.dot(p.x))))-1)* p.y*p.y
+    }.reduce(_+_)
+}
+```  
+3. cache() and persistence
+```scala
+val lastYearLog:RDD[String]=...
+val logsWithErrors = lastYearLog.filer(_.contains("ERROR")).persist()
+val firstLogsWithErrors = logsWithErrors.take(10)
+val numErrors = logsWithErrors.count()
+```
+    * LR
+ ```scala
+val points = sc.textFile(...).map(parsePoint).persist()
+var w = Vector.zeros(d)
+for (i<-1 to numIterations){
+  val gradient = points.map{
+        p=> (1/(1+exp(-p.y*w.dot(p.x)))-1)*p.y*p.y 
+  }.reduce(_+_)
+  w -= alpha*gradient
+}
+```
+    cache() memory level
+    persist() storage level
+    MEMORY_AND_DISK_SER  
+    
+4. Restating the benefits of laziness for large-scale Data
+
+## Cluster Toplogy Matters!
+
+1. example
+```scala
+case class Person(name:String,age:Int)
+val people:RDD[Person]=
+val first10 = people.take(10)
+```
+2. How spark jobs are executed
+    * Driver program(Spark Context)
+    * Cluster manager(yearn,mesos)
+    * work Node(executer)
+    * foreach is execute on work node (because it's side effect)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
