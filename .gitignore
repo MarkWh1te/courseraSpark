@@ -1,7 +1,7 @@
 ### Scala ###
 *.class
 *.log
-
+*.dat
 # sbt specific
 .cache
 .history
